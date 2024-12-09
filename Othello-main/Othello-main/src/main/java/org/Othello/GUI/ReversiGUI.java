@@ -8,13 +8,43 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
+import java.util.Timer;
 
 public class ReversiGUI extends JFrame {
     private JButton[][] boardButtons;
     private int boardSize;
     private Board board;
-    //Icon blackIcon = new ImageIcon("picture/black.png");
-    //Icon whiteIcon = new ImageIcon("picture/white.png");
+    private int player1Time = 10;
+    private int player2Time = 10;
+
+
+    Timer player1Timer = new Timer("Player1Timer");
+    Timer player2Timer = new Timer("Player2Timer");
+    TimerTask playerTimerTask = new TimerTask() {
+        @Override public void run() {
+        if (board.getPlayerColor() == 1) {
+            if(player1Time> 0){
+                player1Time--;// 假设每秒更新一次
+                player1Label.setText("黑棋剩余时间：" + player1Time);
+            }else{
+                JOptionPane.showMessageDialog(null,"时间超时，白棋胜利");
+                stopPlayerTimer();
+            }
+
+        } else {
+            if(player2Time> 0){
+                player2Time--;// 假设每秒更新一次
+                player2Label.setText("白棋剩余时间：" + player2Time);
+            }else{
+                JOptionPane.showMessageDialog(null,"时间超时，黑棋胜利");
+                stopPlayerTimer();
+            }
+        }
+    }};
+
+    private JLabel player1Label = new JLabel("黑棋剩余时间：10");
+    private JLabel player2Label = new JLabel("白棋剩余时间：10");
 
 
 
@@ -24,6 +54,8 @@ public class ReversiGUI extends JFrame {
         boardButtons = new JButton[boardSize][boardSize];
         board.setPlayerColor(1);
         initializeBoard();
+        startPlayerTimer(board.getPlayerColor());;
+
     }
 
 
@@ -53,6 +85,11 @@ public class ReversiGUI extends JFrame {
             }
         }
 
+
+        //计时
+        JPanel time = new JPanel(new GridLayout());
+        time.add(player1Label);
+        time.add(player2Label);
 
 
 
@@ -109,11 +146,12 @@ public class ReversiGUI extends JFrame {
         //排版
         JFrame frame = new JFrame();
         frame.setTitle("Reversi Game");
-        frame.setSize(600,700);
+        frame.setSize(600,800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.add(mainGame, BorderLayout.CENTER);
         frame.add(config, BorderLayout.SOUTH);
+        frame.add(time, BorderLayout.NORTH);
         frame.setVisible(true);
 
 
@@ -127,6 +165,8 @@ public class ReversiGUI extends JFrame {
             board.placeAndFlip(row,col,board.getPlayerColor());
             board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
             updateBoard(board.getBoard());
+            player1Time = 10;
+            player2Time = 10;
         } else {
             JOptionPane.showMessageDialog(this, "Invalid move!", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -156,7 +196,9 @@ public class ReversiGUI extends JFrame {
            win();
        } else if(board.skip()){
            board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
-           JOptionPane.showMessageDialog(null,"无处可走，切换玩家");}
+           JOptionPane.showMessageDialog(null,"无处可走，切换玩家");
+
+        }
 
     }
 
@@ -226,6 +268,9 @@ public class ReversiGUI extends JFrame {
 
                 updateBoard(board.getBoard());
 
+                restartTimer();
+
+
                 JOptionPane.showMessageDialog(null, "文件加载成功！");
 
             } catch (IOException | NumberFormatException e) {
@@ -238,6 +283,7 @@ public class ReversiGUI extends JFrame {
 
     //
     public void restartGame() {
+        stopPlayerTimer();
         int[][] restartBoard = new int[boardSize][boardSize];
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
@@ -251,6 +297,8 @@ public class ReversiGUI extends JFrame {
         int currentPlayer = 1;
         board.setPlayerColor(currentPlayer);
         board.setBoard(restartBoard);
+        restartTimer();
+        startPlayerTimer(board.getPlayerColor());
     }
 
 
@@ -258,6 +306,7 @@ public class ReversiGUI extends JFrame {
 
 
     public void win(){
+        stopPlayerTimer();
         int[] counter = board.count();
         if (counter[1] > counter[2]) {
             JOptionPane.showMessageDialog(null,"黑棋胜利");
@@ -274,13 +323,58 @@ public class ReversiGUI extends JFrame {
         boolean tem = true;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (board.canFlip(i,j,0) || board.canFlip(i,j,2)){
+                if (board.canFlip(i,j,1) || board.canFlip(i,j,2)){
                     return false;
                 }
             }
         }
         return tem;
     }
+
+
+    public void startPlayerTimer(int player) {
+        Timer timer = (player == 1) ? player1Timer : player2Timer;
+        timer.scheduleAtFixedRate(playerTimerTask, 0, 1000);
+
+    }
+
+
+
+    public void stopPlayerTimer() {
+        playerTimerTask.cancel();
+    }
+
+
+    public void restartTimer(){
+        player1Time = 10;
+        player2Time = 10;
+        playerTimerTask = new TimerTask() {
+            @Override public void run() {
+                if (board.getPlayerColor() == 1) {
+                    if(player1Time> 0){
+                        player1Time--;// 假设每秒更新一次
+                        player1Label.setText("黑棋剩余时间：" + player1Time);
+                    }else{
+                        JOptionPane.showMessageDialog(null,"时间超时，白棋胜利");
+                        stopPlayerTimer();
+                    }
+
+                } else {
+                    if(player2Time> 0){
+                        player2Time--;// 假设每秒更新一次
+                        player2Label.setText("白棋剩余时间：" + player2Time);
+                    }else{
+                        JOptionPane.showMessageDialog(null,"时间超时，黑棋胜利");
+                        stopPlayerTimer();
+                    }
+                }
+            }};
+    }
+
+
+
+
+
 
 
 
