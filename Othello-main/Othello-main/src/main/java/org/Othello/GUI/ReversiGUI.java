@@ -274,7 +274,7 @@ public class ReversiGUI extends JFrame {
         boolean tem = true;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (board.canFlip(i,j,0) || board.canFlip(i,j,2)){
+                if (board.canFlip(i,j,1) || board.canFlip(i,j,2)){
                     return false;
                 }
             }

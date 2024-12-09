@@ -134,7 +134,7 @@ public class Board {
     }
     public boolean canFlip(int row, int col, int color) {
         // 检查边界条件
-        if (row < 0 || row >= 8 || col < 0 || col >= 8 || board[row][col] != 0) {
+        if (row < 0 || row >= 8 || col < 0 || col >= 8 || board[row][col] == 1 || board[row][col] == 2) {
             return false; // 非法坐标或非空格，直接返回 false
         }
 
