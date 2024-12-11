@@ -17,8 +17,9 @@ public class ReversiGUI extends JFrame {
     private Board board;
 
     //timer初始设置
-    private int player1Time = 10;
-    private int player2Time = 10;
+    private final int lastingTime = 10;
+    private int player1Time = lastingTime;
+    private int player2Time = lastingTime;
 
 
     Timer player1Timer = new Timer("Player1Timer");
@@ -167,8 +168,8 @@ public class ReversiGUI extends JFrame {
             board.placeAndFlip(row,col,board.getPlayerColor());
             board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
             updateBoard(board.getBoard());
-            player1Time = 10;
-            player2Time = 10;
+            player1Time = lastingTime;
+            player2Time = lastingTime;
         } else {
             JOptionPane.showMessageDialog(this, "Invalid move!", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -349,8 +350,8 @@ public class ReversiGUI extends JFrame {
 
     //重置并启动timerTask
     public void restartTimer(){
-        player1Time = 10;
-        player2Time = 10;
+        player1Time = lastingTime;
+        player2Time = lastingTime;
         playerTimerTask = new TimerTask() {
             @Override public void run() {
                 if (board.getPlayerColor() == 1) {
