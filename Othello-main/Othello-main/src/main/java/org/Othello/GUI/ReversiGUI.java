@@ -379,7 +379,7 @@ public class ReversiGUI extends JFrame {
             @Override public void run() {
                 if (board.getPlayerColor() == 1) {
                     if(player1Time> 0){
-                        player1Time--;// 假设每秒更新一次
+                        player1Time--;
                         player1Label.setText("黑棋剩余时间：" + player1Time);
                     }else{
                         JOptionPane.showMessageDialog(null,"时间超时，白棋胜利");
