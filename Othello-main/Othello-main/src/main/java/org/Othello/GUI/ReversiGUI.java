@@ -15,6 +15,8 @@ public class ReversiGUI extends JFrame {
     private JButton[][] boardButtons;
     private int boardSize;
     private Board board;
+
+    //timer初始设置
     private int player1Time = 10;
     private int player2Time = 10;
 
@@ -25,7 +27,7 @@ public class ReversiGUI extends JFrame {
         @Override public void run() {
         if (board.getPlayerColor() == 1) {
             if(player1Time> 0){
-                player1Time--;// 假设每秒更新一次
+                player1Time--;
                 player1Label.setText("黑棋剩余时间：" + player1Time);
             }else{
                 JOptionPane.showMessageDialog(null,"时间超时，白棋胜利");
@@ -34,7 +36,7 @@ public class ReversiGUI extends JFrame {
 
         } else {
             if(player2Time> 0){
-                player2Time--;// 假设每秒更新一次
+                player2Time--;
                 player2Label.setText("白棋剩余时间：" + player2Time);
             }else{
                 JOptionPane.showMessageDialog(null,"时间超时，黑棋胜利");
@@ -86,7 +88,7 @@ public class ReversiGUI extends JFrame {
         }
 
 
-        //计时
+        //计时的Label
         JPanel time = new JPanel(new GridLayout());
         time.add(player1Label);
         time.add(player2Label);
@@ -281,7 +283,7 @@ public class ReversiGUI extends JFrame {
 
 
 
-    //
+    //重启游戏
     public void restartGame() {
         stopPlayerTimer();
         int[][] restartBoard = new int[boardSize][boardSize];
@@ -304,7 +306,7 @@ public class ReversiGUI extends JFrame {
 
 
 
-
+    //胜利情况
     public void win(){
         stopPlayerTimer();
         int[] counter = board.count();
@@ -318,7 +320,7 @@ public class ReversiGUI extends JFrame {
     }
 
 
-
+    //结束判断
     public boolean over(){
         boolean tem = true;
         for (int i = 0; i < 8; i++) {
@@ -331,7 +333,7 @@ public class ReversiGUI extends JFrame {
         return tem;
     }
 
-
+    //计时开始
     public void startPlayerTimer(int player) {
         Timer timer = (player == 1) ? player1Timer : player2Timer;
         timer.scheduleAtFixedRate(playerTimerTask, 0, 1000);
@@ -339,12 +341,13 @@ public class ReversiGUI extends JFrame {
     }
 
 
-
+    //停止task
     public void stopPlayerTimer() {
         playerTimerTask.cancel();
     }
 
 
+    //重置并启动timerTask
     public void restartTimer(){
         player1Time = 10;
         player2Time = 10;
