@@ -200,6 +200,22 @@ public class ReversiGUI extends JFrame {
        } else if(board.skip()){
            board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
            JOptionPane.showMessageDialog(null,"无处可走，切换玩家");
+            board.judgeAndHint(board.getPlayerColor());
+            for (int i = 0; i < boardSize; i++) {
+                for (int j = 0; j < boardSize; j++) {
+                    if (boardState[i][j] == 1) {
+                        //boardButtons[i][j].setIcon(blackIcon);
+                        boardButtons[i][j].setBackground(Color.BLACK);
+                    } else if (boardState[i][j] == 2) {
+                        //boardButtons[i][j].setIcon(whiteIcon);
+                        boardButtons[i][j].setBackground(Color.white);
+                    }else if (boardState[i][j] == 6) {
+                        boardButtons[i][j].setBackground(Color.green);
+                    } else {
+                        boardButtons[i][j].setBackground(Color.gray);
+                    }
+                }
+            }
 
         }
 
@@ -207,7 +223,7 @@ public class ReversiGUI extends JFrame {
 
     //存档方法
     public void saveFile() {
-
+        stopPlayerTimer();
         JFileChooser chooser = new JFileChooser();
         int returnVal = chooser.showSaveDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -221,13 +237,18 @@ public class ReversiGUI extends JFrame {
                     writer.newLine();
                 }
                 writer.write(Integer.toString(board.getPlayerColor()));
-
-
+                restartTimer();
+                startPlayerTimer(board.getPlayerColor());
                 JOptionPane.showMessageDialog(null,"文件保存成功！");
 
             }catch(IOException e){
                 JOptionPane.showMessageDialog(null,"失败");
+                restartTimer();
+                startPlayerTimer(board.getPlayerColor());
             }
+        }else{
+            restartTimer();
+            startPlayerTimer(board.getPlayerColor());
         }
 
     }
@@ -238,6 +259,7 @@ public class ReversiGUI extends JFrame {
     //加载存档方法
 
     public void loadFile() {
+        stopPlayerTimer();
         JFileChooser chooser = new JFileChooser();
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -266,19 +288,20 @@ public class ReversiGUI extends JFrame {
                 for (int i = 0; i < boardStateList.size(); i++) {
                     boardState[i] = boardStateList.get(i).stream().mapToInt(Integer::intValue).toArray();
                 }
-
                 board.setBoard(boardState);
-
                 updateBoard(board.getBoard());
-
                 restartTimer();
-
-
+                startPlayerTimer(board.getPlayerColor());
                 JOptionPane.showMessageDialog(null, "文件加载成功！");
 
             } catch (IOException | NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "加载失败：" + e.getMessage());
+                restartTimer();
+                startPlayerTimer(board.getPlayerColor());
             }
+        }else{
+            restartTimer();
+            startPlayerTimer(board.getPlayerColor());
         }
     }
 
