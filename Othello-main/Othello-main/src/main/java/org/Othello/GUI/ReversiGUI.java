@@ -189,7 +189,7 @@ public class ReversiGUI extends JFrame {
             board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
             updateBoard(board.getBoard());
             if (board.getPlayerColor()!= 1) {// 如果AI走棋
-                makeAIMove();
+                makeAIMove(getDifficulty());
             }
             player1Time = lastingTime;
             player2Time = lastingTime;
@@ -407,7 +407,7 @@ public class ReversiGUI extends JFrame {
 
     }
 
-    public void makeAIMove() {
+    public void makeAIMove(int difficulty) {
         int[][] boardl = board.getBoard();
         int bestScore = Integer.MIN_VALUE;
         int bestRow = -1;
