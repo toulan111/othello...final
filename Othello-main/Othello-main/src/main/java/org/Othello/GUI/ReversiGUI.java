@@ -1,6 +1,5 @@
 package org.Othello.GUI;
 import org.Othello.Game.Board;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,61 +20,52 @@ public class ReversiGUI extends JFrame {
     private int player1Time = lastingTime;
     private int player2Time = lastingTime;
 
-
     Timer player1Timer = new Timer("Player1Timer");
     Timer player2Timer = new Timer("Player2Timer");
     TimerTask playerTimerTask = new TimerTask() {
-        @Override public void run() {
-        if (board.getPlayerColor() == 1) {
-            if(player1Time> 0){
-                player1Time--;
-                player1Label.setText("黑棋剩余时间：" + player1Time);
-            }else{
-                JOptionPane.showMessageDialog(null,"时间超时，白棋胜利");
-                stopPlayerTimer();
-            }
+        @Override
+        public void run() {
+            if (board.getPlayerColor() == 1) {
+                if (player1Time > 0) {
+                    player1Time--;
+                    player1Label.setText("黑棋剩余时间：" + player1Time);
+                } else {
+                    JOptionPane.showMessageDialog(null, "时间超时，白棋胜利");
+                    stopPlayerTimer();
+                }
 
-        } else {
-            if(player2Time> 0){
-                player2Time--;
-                player2Label.setText("白棋剩余时间：" + player2Time);
-            }else{
-                JOptionPane.showMessageDialog(null,"时间超时，黑棋胜利");
-                stopPlayerTimer();
+            } else {
+                if (player2Time > 0) {
+                    player2Time--;
+                    player2Label.setText("白棋剩余时间：" + player2Time);
+                } else {
+                    JOptionPane.showMessageDialog(null, "时间超时，黑棋胜利");
+                    stopPlayerTimer();
+                }
             }
         }
-    }};
+    };
 
     private JLabel player1Label = new JLabel("黑棋剩余时间：10");
     private JLabel player2Label = new JLabel("白棋剩余时间：10");
 
-
-
-    public ReversiGUI(int size,Board board) {
+    public ReversiGUI(int size, Board board) {
         this.boardSize = size;
         this.board = board;
-        boardButtons = new JButton[boardSize][boardSize];
+        boardButtons = new JButton[size][size];
         board.setPlayerColor(1);
         initializeBoard();
-        startPlayerTimer(board.getPlayerColor());;
-
+        startPlayerTimer(board.getPlayerColor());
     }
-
-
 
     //初始化界面
     private void initializeBoard() {
-
-
-
-
         //主游戏界面
         JPanel mainGame = new JPanel(new GridLayout(boardSize, boardSize));
-        mainGame.setSize(600,600);
+        mainGame.setSize(600, 600);
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 boardButtons[i][j] = new JButton();
-                //boardButtons[i][j].setBackground(Color.GREEN);
                 int row = i;
                 int col = j;
                 boardButtons[i][j].addActionListener(new ActionListener() {
@@ -88,16 +78,12 @@ public class ReversiGUI extends JFrame {
             }
         }
 
-
         //计时的Label
         JPanel time = new JPanel(new GridLayout());
         time.add(player1Label);
         time.add(player2Label);
 
-
-
         //辅助选项
-
 
         //保存
         JPanel config = new JPanel(new GridLayout());
@@ -109,7 +95,6 @@ public class ReversiGUI extends JFrame {
             }
         });
 
-
         //加载
         JButton loadButton = new JButton("Load Game");
         loadButton.addActionListener(new ActionListener() {
@@ -118,7 +103,6 @@ public class ReversiGUI extends JFrame {
                 loadFile();
             }
         });
-
 
         //重启
         JButton restartButton = new JButton("Restart");
@@ -130,7 +114,6 @@ public class ReversiGUI extends JFrame {
                 JOptionPane.showMessageDialog(ReversiGUI.this, "Game Restarted!");
             }
         });
-
 
         //退出
         JButton exitButton = new JButton("Exit");
@@ -149,7 +132,7 @@ public class ReversiGUI extends JFrame {
         //排版
         JFrame frame = new JFrame();
         frame.setTitle("Reversi Game");
-        frame.setSize(600,800);
+        frame.setSize(600, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.add(mainGame, BorderLayout.CENTER);
@@ -157,17 +140,18 @@ public class ReversiGUI extends JFrame {
         frame.add(time, BorderLayout.NORTH);
         frame.setVisible(true);
 
-
         updateBoard(board.getBoard());
     }
 
-
     //点击
     private void handleBoardClick(int row, int col) {
-        if (board.canFlip(row,col,board.getPlayerColor())) {
-            board.placeAndFlip(row,col,board.getPlayerColor());
-            board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
+        if (board.canFlip(row, col, board.getPlayerColor())) {
+            board.placeAndFlip(row, col, board.getPlayerColor());
+            board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
             updateBoard(board.getBoard());
+            if (board.getPlayerColor()!= 1) { // 如果AI走棋
+                makeAIMove();
+            }
             player1Time = lastingTime;
             player2Time = lastingTime;
         } else {
@@ -175,44 +159,39 @@ public class ReversiGUI extends JFrame {
         }
     }
 
-
     //刷新
     public void updateBoard(int[][] boardState) {
         board.judgeAndHint(board.getPlayerColor());
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 if (boardState[i][j] == 1) {
-                    //boardButtons[i][j].setIcon(blackIcon);
                     boardButtons[i][j].setBackground(Color.BLACK);
                 } else if (boardState[i][j] == 2) {
-                    //boardButtons[i][j].setIcon(whiteIcon);
-                    boardButtons[i][j].setBackground(Color.white);
-                }else if (boardState[i][j] == 6) {
-                    boardButtons[i][j].setBackground(Color.green);
+                    boardButtons[i][j].setBackground(Color.WHITE);
+                } else if (boardState[i][j] == 6) {
+                    boardButtons[i][j].setBackground(Color.GREEN);
                 } else {
-                    boardButtons[i][j].setBackground(Color.gray);
+                    boardButtons[i][j].setBackground(Color.GRAY);
                 }
             }
         }
 
-        if(over()){
-           win();
-       } else if(board.skip()){
-           board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
-           JOptionPane.showMessageDialog(null,"无处可走，切换玩家");
+        if (over()) {
+            win();
+        } else if (board.skip()) {
+            board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
+            JOptionPane.showMessageDialog(null, "无处可走，切换玩家");
             board.judgeAndHint(board.getPlayerColor());
             for (int i = 0; i < boardSize; i++) {
                 for (int j = 0; j < boardSize; j++) {
                     if (boardState[i][j] == 1) {
-                        //boardButtons[i][j].setIcon(blackIcon);
                         boardButtons[i][j].setBackground(Color.BLACK);
                     } else if (boardState[i][j] == 2) {
-                        //boardButtons[i][j].setIcon(whiteIcon);
-                        boardButtons[i][j].setBackground(Color.white);
-                    }else if (boardState[i][j] == 6) {
-                        boardButtons[i][j].setBackground(Color.green);
+                        boardButtons[i][j].setBackground(Color.WHITE);
+                    } else if (boardState[i][j] == 6) {
+                        boardButtons[i][j].setBackground(Color.GREEN);
                     } else {
-                        boardButtons[i][j].setBackground(Color.gray);
+                        boardButtons[i][j].setBackground(Color.GRAY);
                     }
                 }
             }
@@ -228,9 +207,9 @@ public class ReversiGUI extends JFrame {
         int returnVal = chooser.showSaveDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
-            try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
-                for(int[] row : board.getBoard()) {
-                    for(int element : row) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (int[] row : board.getBoard()) {
+                    for (int element : row) {
                         writer.write(Integer.toString(element));
                         writer.write(" ");
                     }
@@ -239,35 +218,31 @@ public class ReversiGUI extends JFrame {
                 writer.write(Integer.toString(board.getPlayerColor()));
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
-                JOptionPane.showMessageDialog(null,"文件保存成功！");
+                JOptionPane.showMessageDialog(null, "文件保存成功！");
 
-            }catch(IOException e){
-                JOptionPane.showMessageDialog(null,"失败");
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, "失败");
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
             }
-        }else{
+        } else {
             restartTimer();
             startPlayerTimer(board.getPlayerColor());
         }
 
     }
 
-
-
-    
     //加载存档方法
-
     public void loadFile() {
         stopPlayerTimer();
         JFileChooser chooser = new JFileChooser();
-        int returnVal = chooser.showOpenDialog(null);
+        int returnVal = JFileChooser.APPROVE_OPTION;
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 List<List<Integer>> boardStateList = new ArrayList<>();
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while ((line = reader.readLine())!= null) {
                     String[] elements = line.trim().split("\\s+");
                     List<Integer> row = new ArrayList<>();
                     for (String element : elements) {
@@ -278,7 +253,7 @@ public class ReversiGUI extends JFrame {
 
                 if (!boardStateList.isEmpty()) {
                     String lastLine = reader.readLine();
-                    if (lastLine != null) {
+                    if (lastLine!= null) {
                         int currentPlayer = Integer.parseInt(lastLine.trim());
                         board.setPlayerColor(currentPlayer);
                     }
@@ -299,13 +274,11 @@ public class ReversiGUI extends JFrame {
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
             }
-        }else{
+        } else {
             restartTimer();
             startPlayerTimer(board.getPlayerColor());
         }
     }
-
-
 
     //重启游戏
     public void restartGame() {
@@ -327,29 +300,25 @@ public class ReversiGUI extends JFrame {
         startPlayerTimer(board.getPlayerColor());
     }
 
-
-
-
     //胜利情况
-    public void win(){
+    public void win() {
         stopPlayerTimer();
         int[] counter = board.count();
         if (counter[1] > counter[2]) {
-            JOptionPane.showMessageDialog(null,"黑棋胜利");
+            JOptionPane.showMessageDialog(null, "黑棋胜利");
         } else if (counter[1] == counter[2]) {
-            JOptionPane.showMessageDialog(null,"平局");
-        }else{
-            JOptionPane.showMessageDialog(null,"白棋胜利");
+            JOptionPane.showMessageDialog(null, "平局");
+        } else {
+            JOptionPane.showMessageDialog(null, "白棋胜利");
         }
     }
 
-
     //结束判断
-    public boolean over(){
+    public boolean over() {
         boolean tem = true;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (board.canFlip(i,j,1) || board.canFlip(i,j,2)){
+                if (board.canFlip(i, j, 1) || board.canFlip(i, j, 2)) {
                     return false;
                 }
             }
@@ -359,51 +328,81 @@ public class ReversiGUI extends JFrame {
 
     //计时开始
     public void startPlayerTimer(int player) {
-        Timer timer = (player == 1) ? player1Timer : player2Timer;
+        Timer timer = (player == 1)? player1Timer : player2Timer;
         timer.scheduleAtFixedRate(playerTimerTask, 0, 1000);
 
     }
-
 
     //停止task
     public void stopPlayerTimer() {
         playerTimerTask.cancel();
     }
 
-
     //重置并启动timerTask
-    public void restartTimer(){
+    public void restartTimer() {
         player1Time = lastingTime;
         player2Time = lastingTime;
         playerTimerTask = new TimerTask() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 if (board.getPlayerColor() == 1) {
-                    if(player1Time> 0){
+                    if (player1Time > 0) {
                         player1Time--;
                         player1Label.setText("黑棋剩余时间：" + player1Time);
-                    }else{
-                        JOptionPane.showMessageDialog(null,"时间超时，白棋胜利");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "时间超时，白棋胜利");
                         stopPlayerTimer();
                     }
 
                 } else {
-                    if(player2Time> 0){
+                    if (player2Time > 0) {
                         player2Time--;
                         player2Label.setText("白棋剩余时间：" + player2Time);
-                    }else{
-                        JOptionPane.showMessageDialog(null,"时间超时，黑棋胜利");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "时间超时，黑棋胜利");
                         stopPlayerTimer();
                     }
                 }
-            }};
+            }
+        };
+
     }
 
+    public void makeAIMove() {
+        int[][] boardl = board.getBoard();
+        int bestScore = Integer.MIN_VALUE;
+        int bestRow = -1;
+        int bestCol = -1;
+        int maximizingPlayer = board.getPlayerColor();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if ((boardl[i][j] == 0 || boardl[i][j] == 6) && board.canFlip(i, j, maximizingPlayer)) {
+                    // 这里复制一份棋盘状态进行操作，避免影响原始棋盘
+                    int[][] copiedBoard = copyBoard(boardl);
+                    copiedBoard[i][j] = maximizingPlayer;
+                    int score = board.alphaBeta(copiedBoard, 3, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestRow = i;
+                        bestCol = j;
+                    }
+                }
+            }
+        }
 
+        if (bestRow!= -1 && bestCol!= -1) {
+            board.placeAndFlip(bestRow, bestCol, maximizingPlayer);
+            System.out.println("最佳行: " + bestRow + ", 最佳列: " + bestCol + ", 最佳分数: " + bestScore);
+            board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
+            updateBoard(board.getBoard());
+        }
+    }
 
-
-
-
-
-
-
+    private int[][] copyBoard(int[][] originalBoard) {
+        int[][] copiedBoard = new int[originalBoard.length][];
+        for (int i = 0; i < originalBoard.length; i++) {
+            copiedBoard[i] = originalBoard[i].clone();
+        }
+        return copiedBoard;
+    }
 }
