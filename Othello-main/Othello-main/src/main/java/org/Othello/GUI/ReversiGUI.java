@@ -14,6 +14,16 @@ public class ReversiGUI extends JFrame {
     private JButton[][] boardButtons;
     private int boardSize;
     private Board board;
+    private int difficulty;
+
+
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
 
     //timer初始设置
     private final int lastingTime = 10;
@@ -78,6 +88,32 @@ public class ReversiGUI extends JFrame {
             }
         }
 
+        //难度选择
+        JButton easy = new JButton("Easy");
+        easy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setDifficulty(1);
+                restartGame();
+            }
+        });
+        JButton medium = new JButton("Medium");
+        medium.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setDifficulty(2);
+                restartGame();
+            }
+        });
+        JButton hard = new JButton("Hard");
+        hard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setDifficulty(3);
+                restartGame();
+            }
+        });
+
         //计时的Label
         JPanel time = new JPanel(new GridLayout());
         time.add(player1Label);
@@ -87,7 +123,7 @@ public class ReversiGUI extends JFrame {
 
         //保存
         JPanel config = new JPanel(new GridLayout());
-        JButton saveButton = new JButton("Save Game");
+        JButton saveButton = new JButton("Save");
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -96,7 +132,7 @@ public class ReversiGUI extends JFrame {
         });
 
         //加载
-        JButton loadButton = new JButton("Load Game");
+        JButton loadButton = new JButton("Load");
         loadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -128,6 +164,9 @@ public class ReversiGUI extends JFrame {
         config.add(loadButton);
         config.add(restartButton);
         config.add(exitButton);
+        config.add(easy);
+        config.add(medium);
+        config.add(hard);
 
         //排版
         JFrame frame = new JFrame();
@@ -149,7 +188,7 @@ public class ReversiGUI extends JFrame {
             board.placeAndFlip(row, col, board.getPlayerColor());
             board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
             updateBoard(board.getBoard());
-            if (board.getPlayerColor()!= 1) { // 如果AI走棋
+            if (board.getPlayerColor()!= 1) {// 如果AI走棋
                 makeAIMove();
             }
             player1Time = lastingTime;
