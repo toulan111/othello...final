@@ -1,13 +1,14 @@
 package org.Othello.GUI;
+
 import org.Othello.Game.Board;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.Timer;
 
 public class ReversiGUI extends JFrame {
@@ -15,6 +16,9 @@ public class ReversiGUI extends JFrame {
     private int boardSize;
     private Board board;
     private int difficulty;
+
+    //悔棋
+    public List<int[][]> boardHistory;
 
 
     public int getDifficulty() {
@@ -63,6 +67,7 @@ public class ReversiGUI extends JFrame {
         this.boardSize = size;
         this.board = board;
         boardButtons = new JButton[size][size];
+        boardHistory = new ArrayList<>();
         board.setPlayerColor(1);
         initializeBoard();
         startPlayerTimer(board.getPlayerColor());
@@ -70,6 +75,8 @@ public class ReversiGUI extends JFrame {
 
     //初始化界面
     private void initializeBoard() {
+        boardHistory.add(copyBoard(board.getBoard()));
+
         //主游戏界面
         JPanel mainGame = new JPanel(new GridLayout(boardSize, boardSize));
         mainGame.setSize(600, 600);
@@ -114,10 +121,25 @@ public class ReversiGUI extends JFrame {
             }
         });
 
+
+        //悔棋键
+
+        JButton back = new JButton("Back");
+        back.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                back();
+            }
+        });
+
+
         //计时的Label
         JPanel time = new JPanel(new GridLayout());
         time.add(player1Label);
         time.add(player2Label);
+        time.add(easy);
+        time.add(medium);
+        time.add(hard);
 
         //辅助选项
 
@@ -164,9 +186,8 @@ public class ReversiGUI extends JFrame {
         config.add(loadButton);
         config.add(restartButton);
         config.add(exitButton);
-        config.add(easy);
-        config.add(medium);
-        config.add(hard);
+        config.add(back);
+
 
         //排版
         JFrame frame = new JFrame();
@@ -185,14 +206,22 @@ public class ReversiGUI extends JFrame {
     //点击
     private void handleBoardClick(int row, int col) {
         if (board.canFlip(row, col, board.getPlayerColor())) {
+
             board.placeAndFlip(row, col, board.getPlayerColor());
-            board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
+            board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
             updateBoard(board.getBoard());
-            if (board.getPlayerColor()!= 1) {// 如果AI走棋
+            if (board.getPlayerColor() != 1) {// 如果AI走棋
                 makeAIMove(getDifficulty());
             }
             player1Time = lastingTime;
             player2Time = lastingTime;
+
+            boardHistory.add(copyBoard(board.getBoard()));
+
+
+
+
+
         } else {
             JOptionPane.showMessageDialog(this, "Invalid move!", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -218,7 +247,7 @@ public class ReversiGUI extends JFrame {
         if (over()) {
             win();
         } else if (board.skip()) {
-            board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
+            board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
             JOptionPane.showMessageDialog(null, "无处可走，切换玩家");
             board.judgeAndHint(board.getPlayerColor());
             for (int i = 0; i < boardSize; i++) {
@@ -281,7 +310,7 @@ public class ReversiGUI extends JFrame {
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 List<List<Integer>> boardStateList = new ArrayList<>();
                 String line;
-                while ((line = reader.readLine())!= null) {
+                while ((line = reader.readLine()) != null) {
                     String[] elements = line.trim().split("\\s+");
                     List<Integer> row = new ArrayList<>();
                     for (String element : elements) {
@@ -292,7 +321,7 @@ public class ReversiGUI extends JFrame {
 
                 if (!boardStateList.isEmpty()) {
                     String lastLine = reader.readLine();
-                    if (lastLine!= null) {
+                    if (lastLine != null) {
                         int currentPlayer = Integer.parseInt(lastLine.trim());
                         board.setPlayerColor(currentPlayer);
                     }
@@ -337,6 +366,7 @@ public class ReversiGUI extends JFrame {
         board.setBoard(restartBoard);
         restartTimer();
         startPlayerTimer(board.getPlayerColor());
+        boardHistory.add(board.getBoard());
     }
 
     //胜利情况
@@ -367,7 +397,7 @@ public class ReversiGUI extends JFrame {
 
     //计时开始
     public void startPlayerTimer(int player) {
-        Timer timer = (player == 1)? player1Timer : player2Timer;
+        Timer timer = (player == 1) ? player1Timer : player2Timer;
         timer.scheduleAtFixedRate(playerTimerTask, 0, 1000);
 
     }
@@ -429,10 +459,10 @@ public class ReversiGUI extends JFrame {
             }
         }
 
-        if (bestRow!= -1 && bestCol!= -1) {
+        if (bestRow != -1 && bestCol != -1) {
             board.placeAndFlip(bestRow, bestCol, maximizingPlayer);
             System.out.println("最佳行: " + bestRow + ", 最佳列: " + bestCol + ", 最佳分数: " + bestScore);
-            board.setPlayerColor((board.getPlayerColor() == 1)? 2 : 1);
+            board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
             updateBoard(board.getBoard());
         }
     }
@@ -444,4 +474,19 @@ public class ReversiGUI extends JFrame {
         }
         return copiedBoard;
     }
+
+
+    public void back() {
+        if (!boardHistory.isEmpty()) {
+            boardHistory.remove(boardHistory.size() - 1);
+            board.setBoard(boardHistory.get(boardHistory.size() - 1));
+            updateBoard(board.getBoard());
+            player1Time = lastingTime;
+            player2Time = lastingTime;
+        }else{
+            JOptionPane.showMessageDialog(null,"无法悔棋");
+        }
+    }
+
+
 }

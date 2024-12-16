@@ -31,7 +31,15 @@ public class Board {
         board[4][4] = 2;
         board[3][4] = 1;
         board[4][3] = 1;
+        PlayerColor = 1;
     }
+
+    public Board(int[][]board , int currentPlayer){
+        this.board = board;
+        this.PlayerColor = currentPlayer;
+    }
+
+
 
     // 显示棋盘的方法
     public void display() {
@@ -51,6 +59,7 @@ public class Board {
         }
         System.out.println();
     }
+
 
     // 放置并翻转棋子
     public void placeAndFlip(int row, int col, int color) {
