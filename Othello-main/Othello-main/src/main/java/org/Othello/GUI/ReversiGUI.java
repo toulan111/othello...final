@@ -276,14 +276,16 @@ public class ReversiGUI extends JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                for (int[] row : board.getBoard()) {
-                    for (int element : row) {
-                        writer.write(Integer.toString(element));
-                        writer.write(" ");
+
+                for (int i = 0; i < boardHistory.size(); i++) {
+                    for (int[] row : boardHistory.get(i)) {
+                        for (int element : row) {
+                            writer.write(Integer.toString(element));
+                            writer.write(" ");
+                        }
+                        writer.newLine();
                     }
-                    writer.newLine();
                 }
-                writer.write(Integer.toString(board.getPlayerColor()));
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
                 JOptionPane.showMessageDialog(null, "文件保存成功！");
@@ -301,7 +303,66 @@ public class ReversiGUI extends JFrame {
     }
 
     //加载存档方法
+
+
     public void loadFile() {
+        stopPlayerTimer();
+        JFileChooser chooser = new JFileChooser();
+        int returnVal = chooser.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
+                boardHistory.clear();
+                List<int[]> boardState = new ArrayList<>();
+                String line;
+                int rowCount = 0;
+
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().isEmpty()) { // 忽略空行
+                        String[] elements = line.trim().split(" ");
+                        if (elements.length != 8) {
+                            throw new IOException("每一行必须包含恰好 8 个整数。");
+                        }
+
+                        int[] row = new int[8];
+                        for (int i = 0; i < 8; i++) {
+                            row[i] = Integer.parseInt(elements[i]);
+                        }
+                        boardState.add(row);
+                        rowCount++;
+
+                        // 每 8 行代表一个棋盘状态
+                        if (rowCount == 8) {
+                            boardHistory.add(boardState.toArray(new int[0][]));
+                            boardState.clear(); // 准备读取下一个棋盘状态
+                            rowCount = 0;
+                        }
+                    }
+                }
+
+                board.setBoard(boardHistory.get(boardHistory.size() - 1));
+                restartTimer();
+                startPlayerTimer(board.getPlayerColor());
+                updateBoard(board.getBoard());
+
+                JOptionPane.showMessageDialog(null, "文件加载成功！");
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, "文件读取失败：" + e.getMessage());
+                restartTimer();
+                startPlayerTimer(board.getPlayerColor());
+            }
+        } else {
+            restartTimer();
+            startPlayerTimer(board.getPlayerColor());
+        }
+    }
+
+
+
+
+    /*public void loadFile() {
         stopPlayerTimer();
         JFileChooser chooser = new JFileChooser();
         int returnVal = JFileChooser.APPROVE_OPTION;
@@ -346,7 +407,7 @@ public class ReversiGUI extends JFrame {
             restartTimer();
             startPlayerTimer(board.getPlayerColor());
         }
-    }
+    }*/
 
     //重启游戏
     public void restartGame() {
@@ -477,9 +538,9 @@ public class ReversiGUI extends JFrame {
 
 
     public void back() {
-        if (!boardHistory.isEmpty()) {
+        if (boardHistory.size() > 1) {
             boardHistory.remove(boardHistory.size() - 1);
-            board.setBoard(boardHistory.get(boardHistory.size() - 1));
+            board.setBoard(copyBoard(boardHistory.get(boardHistory.size() - 1)));
             updateBoard(board.getBoard());
             player1Time = lastingTime;
             player2Time = lastingTime;
