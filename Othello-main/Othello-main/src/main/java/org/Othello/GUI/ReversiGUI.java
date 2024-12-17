@@ -359,56 +359,6 @@ public class ReversiGUI extends JFrame {
         }
     }
 
-
-
-
-    /*public void loadFile() {
-        stopPlayerTimer();
-        JFileChooser chooser = new JFileChooser();
-        int returnVal = JFileChooser.APPROVE_OPTION;
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                List<List<Integer>> boardStateList = new ArrayList<>();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] elements = line.trim().split("\\s+");
-                    List<Integer> row = new ArrayList<>();
-                    for (String element : elements) {
-                        row.add(Integer.parseInt(element));
-                    }
-                    boardStateList.add(row);
-                }
-
-                if (!boardStateList.isEmpty()) {
-                    String lastLine = reader.readLine();
-                    if (lastLine != null) {
-                        int currentPlayer = Integer.parseInt(lastLine.trim());
-                        board.setPlayerColor(currentPlayer);
-                    }
-                }
-
-                int[][] boardState = new int[boardStateList.size()][];
-                for (int i = 0; i < boardStateList.size(); i++) {
-                    boardState[i] = boardStateList.get(i).stream().mapToInt(Integer::intValue).toArray();
-                }
-                board.setBoard(boardState);
-                updateBoard(board.getBoard());
-                restartTimer();
-                startPlayerTimer(board.getPlayerColor());
-                JOptionPane.showMessageDialog(null, "文件加载成功！");
-
-            } catch (IOException | NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "加载失败：" + e.getMessage());
-                restartTimer();
-                startPlayerTimer(board.getPlayerColor());
-            }
-        } else {
-            restartTimer();
-            startPlayerTimer(board.getPlayerColor());
-        }
-    }*/
-
     //重启游戏
     public void restartGame() {
         stopPlayerTimer();
