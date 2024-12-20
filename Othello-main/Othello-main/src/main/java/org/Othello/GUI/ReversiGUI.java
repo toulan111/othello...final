@@ -460,12 +460,19 @@ public class ReversiGUI extends JFrame {
                     // 这里复制一份棋盘状态进行操作，避免影响原始棋盘
                     int[][] copiedBoard = copyBoard(boardl);
                     copiedBoard[i][j] = maximizingPlayer;
-                    int score = board.alphaBeta(copiedBoard, 3, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestRow = i;
-                        bestCol = j;
+                    if(getDifficulty() == 1){
+                        int score = board.alphaBeta(copiedBoard, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestRow = i;
+                            bestCol = j;
+                        }
+                    } else if (getDifficulty() == 2) {
+                        int score = board.alphaBeta(copiedBoard, 3, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
+                    } else if (getDifficulty() == 3) {
+                        int score = board.alphaBeta(copiedBoard, 5, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
                     }
+
                 }
             }
         }

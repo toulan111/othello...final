@@ -238,6 +238,7 @@ public class Board {
 
     public int alphaBeta(int[][] board, int depth, int alpha, int beta, boolean isMax, int maximizingPlayer) {
         // 打印当前搜索深度、节点类型、alpha和beta值以及正在搜索的棋盘状态（简略打印）
+
         System.out.println("深度: " + depth + ", " + (isMax? "最大化节点" : "最小化节点") +
                 ", alpha: " + alpha + ", beta: " + beta + ", 当前棋盘（简略）:");
         printBoardBrief(board);
