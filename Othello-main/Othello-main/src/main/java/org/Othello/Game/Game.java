@@ -36,7 +36,7 @@ public class Game {
         while(true){
             int row,line;
             board.judgeAndHint(PlayerColor);
-            board.display();
+
             if (board.skip()){
                 System.out.println("无处落子，改为下一个玩家行棋");
                 PlayerColor = (PlayerColor == 1) ? 2 : 1;//换人

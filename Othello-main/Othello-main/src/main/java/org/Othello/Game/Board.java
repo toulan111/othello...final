@@ -39,27 +39,37 @@ public class Board {
         this.PlayerColor = currentPlayer;
     }
 
-
-
-    // 显示棋盘的方法
-    public void display() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (board[i][j] == 1) {
-                    System.out.print("黑 ");
-                } else if (board[i][j] == 2) {
-                    System.out.print("白 ");
-                } else if (board[i][j] == 0) {
-                    System.out.print("空 ");
-                } else if (board[i][j] == 6) {
-                    System.out.print("口 "); // 用于表示可以落子的地方作为提示
-                }
-            }
-            System.out.println();
+    public boolean canFlip(int row, int col, int color) {
+        // 检查边界条件
+        if (row < 0 || row >= 8 || col < 0 || col >= 8 || board[row][col] == 1 || board[row][col] == 2) {
+            return false; // 非法坐标或非空格，直接返回 false
         }
-        System.out.println();
-    }
 
+        int enemy = (color == 1)? 2 : 1; // 定义敌方颜色
+        int[] dx = {-1, 1, 0, 0, -1, -1, 1, 1}; // 八个方向
+        int[] dy = {0, 0, -1, 1, -1, 1, -1, 1};
+
+        // 遍历八个方向
+        for (int i = 0; i < 8; i++) {
+            int nx = row + dx[i];
+            int ny = col + dy[i];
+            boolean foundEnemy = false; // 标记是否找到敌方棋子
+
+            // 沿当前方向查找
+            while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                if (board[nx][ny] == enemy) {
+                    foundEnemy = true; // 找到敌方棋子
+                } else if (board[nx][ny] == color && foundEnemy) {
+                    return true; // 如果找到己方棋子且中间有敌方棋子，合法
+                } else {
+                    break; // 遇到空格或己方棋子，终止检查
+                }
+                nx += dx[i];
+                ny += dy[i]; // 沿当前方向继续检查
+            }
+        }
+        return false; // 所有方向都不合法
+    }
 
     // 放置并翻转棋子
     public void placeAndFlip(int row, int col, int color) {
@@ -140,37 +150,7 @@ public class Board {
         }
     }
 
-    public boolean canFlip(int row, int col, int color) {
-        // 检查边界条件
-        if (row < 0 || row >= 8 || col < 0 || col >= 8 || board[row][col] == 1 || board[row][col] == 2) {
-            return false; // 非法坐标或非空格，直接返回 false
-        }
 
-        int enemy = (color == 1)? 2 : 1; // 定义敌方颜色
-        int[] dx = {-1, 1, 0, 0, -1, -1, 1, 1}; // 八个方向
-        int[] dy = {0, 0, -1, 1, -1, 1, -1, 1};
-
-        // 遍历八个方向
-        for (int i = 0; i < 8; i++) {
-            int nx = row + dx[i];
-            int ny = col + dy[i];
-            boolean foundEnemy = false; // 标记是否找到敌方棋子
-
-            // 沿当前方向查找
-            while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
-                if (board[nx][ny] == enemy) {
-                    foundEnemy = true; // 找到敌方棋子
-                } else if (board[nx][ny] == color && foundEnemy) {
-                    return true; // 如果找到己方棋子且中间有敌方棋子，合法
-                } else {
-                    break; // 遇到空格或己方棋子，终止检查
-                }
-                nx += dx[i];
-                ny += dy[i]; // 沿当前方向继续检查
-            }
-        }
-        return false; // 所有方向都不合法
-    }
 
     public boolean skip() {
         int counter = 0;
@@ -208,15 +188,15 @@ public class Board {
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] == 1) {
                     if (maximizingPlayer == 1) {
-                        score += 1 + POSITION_WEIGHTS[i][j];
+                        score += POSITION_WEIGHTS[i][j];
                     } else {
-                        score -= 1 + POSITION_WEIGHTS[i][j];
+                        score -= POSITION_WEIGHTS[i][j];
                     }
                 } else if (board[i][j] == 2) {
                     if (maximizingPlayer == 2) {
-                        score += 1 + POSITION_WEIGHTS[i][j];
+                        score += POSITION_WEIGHTS[i][j];
                     } else {
-                        score -= 1 + POSITION_WEIGHTS[i][j];
+                        score -= POSITION_WEIGHTS[i][j];
                     }
                 }
             }
@@ -239,12 +219,11 @@ public class Board {
     public int alphaBeta(int[][] board, int depth, int alpha, int beta, boolean isMax, int maximizingPlayer) {
         // 打印当前搜索深度、节点类型、alpha和beta值以及正在搜索的棋盘状态（简略打印）
 
-        System.out.println("深度: " + depth + ", " + (isMax? "最大化节点" : "最小化节点") +
-                ", alpha: " + alpha + ", beta: " + beta + ", 当前棋盘（简略）:");
+        System.out.println("深度: " + depth + ", " + (isMax? "最大化节点" : "最小化节点") + ", alpha: " + alpha + ", beta: " + beta + ", 当前棋盘（简略）:");
         printBoardBrief(board);
 
-        if (depth == 0 || isGameOver(board)) {
-            int evalScore = evaluateBoard(board, maximizingPlayer);
+        if (depth == 0 || isGameOver(board)) {//这里用于递归行为的终止或
+            int evalScore = evaluateBoard(board, maximizingPlayer);//最底层，为该格所有的分数
             System.out.println("到达叶子节点或游戏结束，评估分数: " + evalScore);
             return evalScore;
         }
