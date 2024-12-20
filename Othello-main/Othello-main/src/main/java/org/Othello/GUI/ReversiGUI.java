@@ -469,8 +469,18 @@ public class ReversiGUI extends JFrame {
                         }
                     } else if (getDifficulty() == 2) {
                         int score = board.alphaBeta(copiedBoard, 3, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestRow = i;
+                            bestCol = j;
+                        }
                     } else if (getDifficulty() == 3) {
                         int score = board.alphaBeta(copiedBoard, 5, Integer.MIN_VALUE, Integer.MAX_VALUE, true, maximizingPlayer);
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestRow = i;
+                            bestCol = j;
+                        }
                     }
 
                 }
