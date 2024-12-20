@@ -15,10 +15,11 @@ public class ReversiGUI extends JFrame {
     private JButton[][] boardButtons;
     private int boardSize;
     private Board board;
-    private int difficulty;
+    private int difficulty = 0;
 
     //悔棋
     public List<int[][]> boardHistory;
+    public List<Integer> boardHistoryColor;
 
 
     public int getDifficulty() {
@@ -60,14 +61,15 @@ public class ReversiGUI extends JFrame {
         }
     };
 
-    private JLabel player1Label = new JLabel("黑棋剩余时间：10");
-    private JLabel player2Label = new JLabel("白棋剩余时间：10");
+    private JLabel player1Label = new JLabel("黑剩余时间：10");
+    private JLabel player2Label = new JLabel("白剩余时间：10");
 
     public ReversiGUI(int size, Board board) {
         this.boardSize = size;
         this.board = board;
         boardButtons = new JButton[size][size];
         boardHistory = new ArrayList<>();
+        boardHistoryColor = new ArrayList<>();
         board.setPlayerColor(1);
         initializeBoard();
         startPlayerTimer(board.getPlayerColor());
@@ -76,7 +78,7 @@ public class ReversiGUI extends JFrame {
     //初始化界面
     private void initializeBoard() {
         boardHistory.add(copyBoard(board.getBoard()));
-
+        boardHistoryColor.add(board.getPlayerColor());
         //主游戏界面
         JPanel mainGame = new JPanel(new GridLayout(boardSize, boardSize));
         mainGame.setSize(600, 600);
@@ -96,12 +98,24 @@ public class ReversiGUI extends JFrame {
         }
 
         //难度选择
+        JButton PVP = new JButton("PVP");
+        PVP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setDifficulty(0);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改模式为PVP");
+                restartGame();
+                updateBoard(board.getBoard());
+            }
+        });
         JButton easy = new JButton("Easy");
         easy.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setDifficulty(1);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改难度为：简单");
                 restartGame();
+                updateBoard(board.getBoard());
             }
         });
         JButton medium = new JButton("Medium");
@@ -109,7 +123,9 @@ public class ReversiGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setDifficulty(2);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改难度为：中等");
                 restartGame();
+                updateBoard(board.getBoard());
             }
         });
         JButton hard = new JButton("Hard");
@@ -117,7 +133,9 @@ public class ReversiGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setDifficulty(3);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改难度为：困难");
                 restartGame();
+                updateBoard(board.getBoard());
             }
         });
 
@@ -140,6 +158,7 @@ public class ReversiGUI extends JFrame {
         time.add(easy);
         time.add(medium);
         time.add(hard);
+        time.add(PVP);
 
         //辅助选项
 
@@ -210,15 +229,14 @@ public class ReversiGUI extends JFrame {
             board.placeAndFlip(row, col, board.getPlayerColor());
             board.setPlayerColor((board.getPlayerColor() == 1) ? 2 : 1);
             updateBoard(board.getBoard());
-            if (board.getPlayerColor() != 1) {// 如果AI走棋
-                makeAIMove(getDifficulty());
+            if (board.getPlayerColor() != 1 && getDifficulty() != 0) {// 如果AI走棋
+                makeAIMove();
             }
             player1Time = lastingTime;
             player2Time = lastingTime;
 
             boardHistory.add(copyBoard(board.getBoard()));
-
-
+            boardHistoryColor.add(board.getPlayerColor());
 
 
 
@@ -286,6 +304,11 @@ public class ReversiGUI extends JFrame {
                         writer.newLine();
                     }
                 }
+
+                for (int i = 0; i < boardHistoryColor.size(); i++) {
+                    writer.write(Integer.toString(boardHistoryColor.get(i)));
+                    writer.newLine();
+                }
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
                 JOptionPane.showMessageDialog(null, "文件保存成功！");
@@ -304,7 +327,6 @@ public class ReversiGUI extends JFrame {
 
     //加载存档方法
 
-
     public void loadFile() {
         stopPlayerTimer();
         JFileChooser chooser = new JFileChooser();
@@ -314,39 +336,50 @@ public class ReversiGUI extends JFrame {
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 
                 boardHistory.clear();
-                List<int[]> boardState = new ArrayList<>();
+                boardHistoryColor.clear();
+                List<int[]> currentBoardState = new ArrayList<>();
                 String line;
-                int rowCount = 0;
-
                 while ((line = reader.readLine()) != null) {
-                    if (!line.trim().isEmpty()) { // 忽略空行
-                        String[] elements = line.trim().split(" ");
-                        if (elements.length != 8) {
-                            throw new IOException("每一行必须包含恰好 8 个整数。");
-                        }
+                    line = line.trim();
+                    if (!line.isEmpty()) {
+                        String[] elements = line.split(" ");
 
-                        int[] row = new int[8];
-                        for (int i = 0; i < 8; i++) {
-                            row[i] = Integer.parseInt(elements[i]);
-                        }
-                        boardState.add(row);
-                        rowCount++;
+                        // 检查是否是棋盘状态行（每行8个整数）
+                        if (elements.length == 8) {
+                            int[] row = new int[8];
+                            for (int i = 0; i < 8; i++) {
+                                row[i] = Integer.parseInt(elements[i]);
+                            }
+                            currentBoardState.add(row);
 
-                        // 每 8 行代表一个棋盘状态
-                        if (rowCount == 8) {
-                            boardHistory.add(boardState.toArray(new int[0][]));
-                            boardState.clear(); // 准备读取下一个棋盘状态
-                            rowCount = 0;
+                            // 如果已经读取了8行，则将其作为一个棋盘状态添加到历史中
+                            if (currentBoardState.size() == 8) {
+                                boardHistory.add(currentBoardState.toArray(new int[0][]));
+                                currentBoardState.clear(); // 准备读取下一个棋盘状态
+                            }
+                        } else if (elements.length == 1) {
+                            int color = Integer.parseInt(elements[0]);
+                            boardHistoryColor.add(color);
+                        } else {
+                            throw new IOException("文件格式错误：每行必须包含8个整数（棋盘状态）或1个整数（颜色历史）。");
                         }
                     }
                 }
 
-                board.setBoard(boardHistory.get(boardHistory.size() - 1));
+                if (!currentBoardState.isEmpty()) {
+                    throw new IOException("文件格式错误：棋盘状态未完整记录。");
+                }
+
+                if (boardHistoryColor.size() != boardHistory.size()) {
+                    throw new IOException("文件格式错误：颜色历史和棋盘状态历史数量不匹配。");
+                }
+
+                board.setBoard(copyBoard(boardHistory.get(boardHistory.size() - 1)));
+                board.setPlayerColor((boardHistoryColor.get(boardHistoryColor.size() - 1)));
+                updateBoard(board.getBoard());
+                JOptionPane.showMessageDialog(null, "文件加载成功！");
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
-                updateBoard(board.getBoard());
-
-                JOptionPane.showMessageDialog(null, "文件加载成功！");
 
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "文件读取失败：" + e.getMessage());
@@ -358,6 +391,7 @@ public class ReversiGUI extends JFrame {
             startPlayerTimer(board.getPlayerColor());
         }
     }
+
 
     //重启游戏
     public void restartGame() {
@@ -377,7 +411,10 @@ public class ReversiGUI extends JFrame {
         board.setBoard(restartBoard);
         restartTimer();
         startPlayerTimer(board.getPlayerColor());
-        boardHistory.add(board.getBoard());
+        boardHistory.clear();
+        boardHistory.add(copyBoard(board.getBoard()));
+        boardHistoryColor.clear();
+        boardHistoryColor.add(board.getPlayerColor());
     }
 
     //胜利情况
@@ -448,7 +485,7 @@ public class ReversiGUI extends JFrame {
 
     }
 
-    public void makeAIMove(int difficulty) {
+    public void makeAIMove() {
         int[][] boardl = board.getBoard();
         try {
             System.out.println("AI思考中");
@@ -514,7 +551,9 @@ public class ReversiGUI extends JFrame {
     public void back() {
         if (boardHistory.size() > 1) {
             boardHistory.remove(boardHistory.size() - 1);
+            boardHistoryColor.remove(boardHistoryColor.size() - 1);
             board.setBoard(copyBoard(boardHistory.get(boardHistory.size() - 1)));
+            board.setPlayerColor(boardHistoryColor.get(boardHistoryColor.size()-1));
             updateBoard(board.getBoard());
             player1Time = lastingTime;
             player2Time = lastingTime;
