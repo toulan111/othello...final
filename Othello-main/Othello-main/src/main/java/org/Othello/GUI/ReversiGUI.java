@@ -61,8 +61,8 @@ public class ReversiGUI extends JFrame {
         }
     };
 
-    private JLabel player1Label = new JLabel("黑棋剩余时间：10");
-    private JLabel player2Label = new JLabel("白棋剩余时间：10");
+    private JLabel player1Label = new JLabel("黑剩余时间：10");
+    private JLabel player2Label = new JLabel("白剩余时间：10");
 
     public ReversiGUI(int size, Board board) {
         this.boardSize = size;
@@ -98,6 +98,16 @@ public class ReversiGUI extends JFrame {
         }
 
         //难度选择
+        JButton PVP = new JButton("PVP");
+        PVP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setDifficulty(0);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改模式为PVP");
+                restartGame();
+                updateBoard(board.getBoard());
+            }
+        });
         JButton easy = new JButton("Easy");
         easy.addActionListener(new ActionListener() {
             @Override
@@ -148,6 +158,7 @@ public class ReversiGUI extends JFrame {
         time.add(easy);
         time.add(medium);
         time.add(hard);
+        time.add(PVP);
 
         //辅助选项
 
