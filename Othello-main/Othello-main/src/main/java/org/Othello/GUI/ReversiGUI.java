@@ -15,7 +15,7 @@ public class ReversiGUI extends JFrame {
     private JButton[][] boardButtons;
     private int boardSize;
     private Board board;
-    private int difficulty;
+    private int difficulty = 1;
 
     //悔棋
     public List<int[][]> boardHistory;
@@ -101,7 +101,9 @@ public class ReversiGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setDifficulty(1);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改难度为：简单");
                 restartGame();
+                updateBoard(board.getBoard());
             }
         });
         JButton medium = new JButton("Medium");
@@ -109,7 +111,9 @@ public class ReversiGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setDifficulty(2);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改难度为：中等");
                 restartGame();
+                updateBoard(board.getBoard());
             }
         });
         JButton hard = new JButton("Hard");
@@ -117,7 +121,9 @@ public class ReversiGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setDifficulty(3);
+                JOptionPane.showMessageDialog(ReversiGUI.this, "已更改难度为：困难");
                 restartGame();
+                updateBoard(board.getBoard());
             }
         });
 
