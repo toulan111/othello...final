@@ -120,14 +120,14 @@ public class Board {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 // 判断当前位置是空白并且可以翻转对方棋子
-                if ((board[i][j] == 0 || board[i][j] == 6) && canFlip(i, j, color)) {
+                if (board[i][j] == 0 && canFlip(i, j, color)) {
                     board[i][j] = 6; // 如果canFlip返回true，则该位置为合法位置
                     //System.out.println("合法落子位置：(" + (i + 1) + ", " + (j + 1) + ")"); // 打印调试信息
-                    temp1 = true;
+                    temp1 = true;// 如果有合法位置返回true
                 }
             }
         }
-        return temp1; // 如果有合法位置返回true
+        return temp1;
     }
 
     public void clearHints() {
@@ -181,7 +181,7 @@ public class Board {
                 }
             }
         }
-        if (counter == 0) {
+        if (counter == 0) {//一个可以落子的地方都没有
             System.out.println("没地方下了，跳过该回合");
             return true;
         } else {
@@ -202,7 +202,7 @@ public class Board {
             {100, -20, 10, 10, 10, 10, -20, 100}
     };
 
-    public static int evaluateBoard(int[][] board, int maximizingPlayer) {
+    public static int evaluateBoard(int[][] board, int maximizingPlayer) {//值得注意的是，这里的计算是直接算整个棋盘对于maximizingPlayer的分数，代表着每次ai落子会比较整个棋盘的前后分数
         int score = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -251,7 +251,7 @@ public class Board {
         List<int[]> potentialMoves = getPotentialMoves(maximizingPlayer);
         if (isMax) {
             int maxEval = Integer.MIN_VALUE;
-            List<Move> madeMoves = new ArrayList<>();
+            List<Move> madeMoves = new ArrayList<>();//这个arraylist用于储存以行列以及该处棋子信息为成员变量的Move类变量
             for (int[] move : potentialMoves) {
                 int i = move[0];
                 int j = move[1];
@@ -259,8 +259,8 @@ public class Board {
                 int originalPiece = board[i][j];
                 board[i][j] = maximizingPlayer;
                 madeMoves.add(new Move(i, j, originalPiece));
-                int eval = alphaBeta(board, depth - 1, alpha, beta, false, (maximizingPlayer == 1)? 2 : 1);
-                maxEval = Math.max(maxEval, eval);
+                int eval = alphaBeta(board, depth - 1, alpha, beta, false, (maximizingPlayer == 1)? 2 : 1);//通过递归获得子分支的估值，类似于最大分数maxevla的候选者
+                maxEval = Math.max(maxEval, eval);//而maxeval则是类似于最大分数的纪录保持者，需要时时更新。
                 alpha = Math.max(alpha, eval);
                 System.out.println("最大化节点，落子位置 (" + i + ", " + j + ") 评估分数: " + eval +
                         ", 当前最佳值更新为: " + maxEval + ", alpha更新为: " + alpha);
@@ -307,10 +307,10 @@ public class Board {
     public boolean isGameOver(int[][] board) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if ((this.board[i][j] == 0 || this.board[i][j] == 6) && canFlip(i, j, 1)) {
+                if (canFlip(i, j, 1)) {
                     return false; // 如果黑棋有合法走法，则游戏未结束
                 }
-                if ((this.board[i][j] == 0 || this.board[i][j] == 6) && canFlip(i, j, 2)) {
+                if (canFlip(i, j, 2)) {
                     return false; // 如果白棋有合法走法，则游戏未结束
                 }
             }
@@ -318,7 +318,7 @@ public class Board {
         return true; // 如果双方都无合法走法，则游戏结束
     }
 
-    class Move {
+    class Move {//便于alphabeta方法的进行
         int row;
         int col;
         int originalPiece;

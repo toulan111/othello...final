@@ -19,11 +19,9 @@ public class Game {
     public void setboard(int[][] board){
         this.board.setBoard(board);
     }
-
     public int getPlayerColor(){
         return PlayerColor;
     }
-
     public void setPlayerColor(int playerColor){
         PlayerColor = playerColor;
     }
@@ -41,15 +39,15 @@ public class Game {
             board.display();
             if (board.skip()){
                 System.out.println("无处落子，改为下一个玩家行棋");
-                PlayerColor = (PlayerColor == 1) ? 2 : 1;
+                PlayerColor = (PlayerColor == 1) ? 2 : 1;//换人
             }
             System.out.println("当前玩家为" + ((PlayerColor== 1) ? "黑方" : "白方"));
             System.out.println("请输入行，列（1-8）: ");
             row = scanner.nextInt() - 1;
-            line = scanner.nextInt() - 1;
-            if (board.canFlip(row,line,PlayerColor)){
-                board.placeAndFlip(row,line,PlayerColor);
-                int[] counter = board.count();
+            line = scanner.nextInt() - 1;//接手所落子坐标
+            if (board.canFlip(row,line,PlayerColor)){//判断是否可以落子
+                board.placeAndFlip(row,line,PlayerColor);//进行翻转
+                int[] counter = board.count();//计数器
                 System.out.println("黑棋: " + counter[1] + " 白棋: " + counter[2]);
                 PlayerColor = (PlayerColor == 1) ? 2 : 1;//切换玩家
             }else {
@@ -60,11 +58,10 @@ public class Game {
                 break;
             }
         }
-        winner();
+        winner();//游戏结束后决定冠军
     }
     //接下来是判断游戏是否结束的方法
-    public boolean Gameover(){
-        int [] counter = board.count();
+    public boolean Gameover(){//逻辑：遍历棋盘并使用canflip方法以检查有没有位置可以翻转别的棋子
         boolean tem = true;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -86,7 +83,6 @@ public class Game {
             System.out.println("白棋获胜！");
         }
     }
-    //做一个当没有地方可以下时跳过该回合的方法
 
 
 
