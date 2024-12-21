@@ -41,6 +41,7 @@ public class ReversiGUI extends JFrame {
     public JLabel bSteps = new JLabel("黑棋数 ： 0");
     public JLabel wSteps = new JLabel("白棋数 ： 0");
     public JLabel ASteps = new JLabel("总步数 ： 0");
+    public JLabel current = new JLabel();
 
 
 
@@ -220,6 +221,7 @@ public class ReversiGUI extends JFrame {
         steps.add(bSteps);
         steps.add(wSteps);
         steps.add(ASteps);
+        steps.add(current);
 
 
         //排版
@@ -287,6 +289,12 @@ public class ReversiGUI extends JFrame {
         bSteps.setText("黑棋数 ：" + bStep);
         wSteps.setText("白棋数 ：" + wStep);
         ASteps.setText("总步数 ：" + allStep);
+        if(board.getPlayerColor() ==1){
+            current.setText("当前玩家： 黑");
+        }else{
+            current.setText("当前玩家： 白");
+        }
+
 
 
 
@@ -316,6 +324,11 @@ public class ReversiGUI extends JFrame {
             bSteps.setText("黑棋数 ：" + bStep);
             wSteps.setText("白棋数 ：" + wStep);
             ASteps.setText("总步数 ：" + allStep);
+            if(board.getPlayerColor() ==1){
+                current.setText("当前玩家： 黑");
+            }else{
+                current.setText("当前玩家： 白");
+            }
 
         }
 
@@ -344,6 +357,9 @@ public class ReversiGUI extends JFrame {
                     writer.write(Integer.toString(boardHistoryColor.get(i)));
                     writer.newLine();
                 }
+
+                writer.write(getDifficulty() + " "+ "0");
+
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
                 JOptionPane.showMessageDialog(null, "文件保存成功！");
@@ -395,7 +411,9 @@ public class ReversiGUI extends JFrame {
                         } else if (elements.length == 1) {
                             int color = Integer.parseInt(elements[0]);
                             boardHistoryColor.add(color);
-                        } else {
+                        } else if(elements.length == 2){
+                            setDifficulty(Integer.parseInt(elements[0]));
+                        }else {
                             throw new IOException("文件格式错误：每行必须包含8个整数（棋盘状态）或1个整数（颜色历史）。");
                         }
                     }
