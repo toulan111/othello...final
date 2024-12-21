@@ -34,9 +34,11 @@ public class ReversiGUI extends JFrame {
     private final int lastingTime = 30;
     private int player1Time = lastingTime;
     private int player2Time = lastingTime;
+    private int alltime = 0;
 
-    private JLabel player1Label = new JLabel("黑剩余时间：10");
-    private JLabel player2Label = new JLabel("白剩余时间：10");
+    private JLabel timeForAll = new JLabel("总时长");
+    private JLabel player1Label = new JLabel("黑剩余时间：30");
+    private JLabel player2Label = new JLabel("白剩余时间：30");
     //步数
     public JLabel bSteps = new JLabel("黑棋数 ： 0");
     public JLabel wSteps = new JLabel("白棋数 ： 0");
@@ -44,7 +46,7 @@ public class ReversiGUI extends JFrame {
     public JLabel current = new JLabel();
 
 
-
+    Timer timer = new Timer("time");
     Timer player1Timer = new Timer("Player1Timer");
     Timer player2Timer = new Timer("Player2Timer");
     TimerTask playerTimerTask = new TimerTask() {
@@ -70,6 +72,16 @@ public class ReversiGUI extends JFrame {
             }
         }
     };
+    TimerTask allTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            int hour = alltime / 3600;
+            int minute = alltime % 3600 / 60;
+            int second = alltime % 60;
+            timeForAll.setText("总时长" + hour + ":" + minute + ":" + second);
+            alltime++;
+        }
+    };
 
 
     public ReversiGUI(int size, Board board) {
@@ -81,6 +93,7 @@ public class ReversiGUI extends JFrame {
         board.setPlayerColor(1);
         initializeBoard();
         startPlayerTimer(board.getPlayerColor());
+        startTimer();
     }
 
     //初始化界面
@@ -218,6 +231,7 @@ public class ReversiGUI extends JFrame {
         //显示当前步数
         JPanel  steps= new JPanel(new GridLayout(5,1));
         steps.setSize(80,200);
+        steps.add(timeForAll);
         steps.add(bSteps);
         steps.add(wSteps);
         steps.add(ASteps);
@@ -449,6 +463,7 @@ public class ReversiGUI extends JFrame {
     //重启游戏
     public void restartGame() {
         stopPlayerTimer();
+        stopTimer();
         int[][] restartBoard = new int[boardSize][boardSize];
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
@@ -463,6 +478,7 @@ public class ReversiGUI extends JFrame {
         board.setPlayerColor(currentPlayer);
         board.setBoard(restartBoard);
         restartTimer();
+        restartAllTimer();
         startPlayerTimer(board.getPlayerColor());
         boardHistory.clear();
         boardHistory.add(copyBoard(board.getBoard()));
@@ -473,6 +489,7 @@ public class ReversiGUI extends JFrame {
     //胜利情况
     public void win() {
         stopPlayerTimer();
+        stopTimer();
         int[] counter = board.count();
         if (counter[1] > counter[2]) {
             JOptionPane.showMessageDialog(null, "黑棋胜利");
@@ -495,6 +512,32 @@ public class ReversiGUI extends JFrame {
         }
         return tem;
     }
+
+    //开始总计时器
+    public void startTimer() {
+        timer.scheduleAtFixedRate(allTimerTask,0,1000);
+    }
+    //重启总计时器
+    public void restartAllTimer(){
+        alltime = 0;
+        TimerTask allTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                int hour = alltime / 3600;
+                int minute = alltime % 3600 / 60;
+                int second = alltime % 60;
+                timeForAll.setText("总时长" + hour + ":" + minute + ":" + second);
+                alltime++;
+            }
+        };
+        timer.schedule(allTimerTask,0,1000);
+
+    //停止总计时器
+    }
+    public void stopTimer() {
+        allTimerTask.cancel();
+    }
+
 
     //计时开始
     public void startPlayerTimer(int player) {
