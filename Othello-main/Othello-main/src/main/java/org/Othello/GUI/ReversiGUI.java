@@ -487,13 +487,7 @@ public class ReversiGUI extends JFrame {
 
     public void makeAIMove() {
         int[][] boardl = board.getBoard();
-        try {
-            System.out.println("AI思考中");
-            Thread.sleep(2000); // 暂停2000毫秒，即2秒
-            System.out.println("结束");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         int bestScore = Integer.MIN_VALUE;
         int bestRow = -1;
         int bestCol = -1;//随便初始化的，反正就是不影响后面赋值
