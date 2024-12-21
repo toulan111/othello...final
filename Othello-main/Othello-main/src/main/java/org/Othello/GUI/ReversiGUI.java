@@ -35,6 +35,15 @@ public class ReversiGUI extends JFrame {
     private int player1Time = lastingTime;
     private int player2Time = lastingTime;
 
+    private JLabel player1Label = new JLabel("黑剩余时间：10");
+    private JLabel player2Label = new JLabel("白剩余时间：10");
+    //步数
+    public JLabel bSteps = new JLabel("黑棋数 ： 0");
+    public JLabel wSteps = new JLabel("白棋数 ： 0");
+    public JLabel ASteps = new JLabel("总步数 ： 0");
+
+
+
     Timer player1Timer = new Timer("Player1Timer");
     Timer player2Timer = new Timer("Player2Timer");
     TimerTask playerTimerTask = new TimerTask() {
@@ -61,8 +70,6 @@ public class ReversiGUI extends JFrame {
         }
     };
 
-    private JLabel player1Label = new JLabel("黑剩余时间：10");
-    private JLabel player2Label = new JLabel("白剩余时间：10");
 
     public ReversiGUI(int size, Board board) {
         this.boardSize = size;
@@ -207,16 +214,24 @@ public class ReversiGUI extends JFrame {
         config.add(exitButton);
         config.add(back);
 
+        //显示当前步数
+        JPanel  steps= new JPanel(new GridLayout(5,1));
+        steps.setSize(80,200);
+        steps.add(bSteps);
+        steps.add(wSteps);
+        steps.add(ASteps);
+
 
         //排版
         JFrame frame = new JFrame();
         frame.setTitle("Reversi Game");
-        frame.setSize(600, 800);
+        frame.setSize(650, 820);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.add(mainGame, BorderLayout.CENTER);
         frame.add(config, BorderLayout.SOUTH);
         frame.add(time, BorderLayout.NORTH);
+        frame.add(steps, BorderLayout.EAST);
         frame.setVisible(true);
 
         updateBoard(board.getBoard());
@@ -248,12 +263,19 @@ public class ReversiGUI extends JFrame {
     //刷新
     public void updateBoard(int[][] boardState) {
         board.judgeAndHint(board.getPlayerColor());
+        int bStep = 0;
+        int wStep = 0;
+        int allStep = -4;
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 if (boardState[i][j] == 1) {
                     boardButtons[i][j].setBackground(Color.BLACK);
+                    bStep++;
+                    allStep++;
                 } else if (boardState[i][j] == 2) {
                     boardButtons[i][j].setBackground(Color.WHITE);
+                    wStep++;
+                    allStep++;
                 } else if (boardState[i][j] == 6) {
                     boardButtons[i][j].setBackground(Color.GREEN);
                 } else {
@@ -261,6 +283,12 @@ public class ReversiGUI extends JFrame {
                 }
             }
         }
+
+        bSteps.setText("黑棋数 ：" + bStep);
+        wSteps.setText("白棋数 ：" + wStep);
+        ASteps.setText("总步数 ：" + allStep);
+
+
 
         if (over()) {
             win();
@@ -272,8 +300,12 @@ public class ReversiGUI extends JFrame {
                 for (int j = 0; j < boardSize; j++) {
                     if (boardState[i][j] == 1) {
                         boardButtons[i][j].setBackground(Color.BLACK);
+                        bStep++;
+                        allStep++;
                     } else if (boardState[i][j] == 2) {
                         boardButtons[i][j].setBackground(Color.WHITE);
+                        wStep++;
+                        allStep++;
                     } else if (boardState[i][j] == 6) {
                         boardButtons[i][j].setBackground(Color.GREEN);
                     } else {
@@ -281,6 +313,9 @@ public class ReversiGUI extends JFrame {
                     }
                 }
             }
+            bSteps.setText("黑棋数 ：" + bStep);
+            wSteps.setText("白棋数 ：" + wStep);
+            ASteps.setText("总步数 ：" + allStep);
 
         }
 
