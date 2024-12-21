@@ -31,7 +31,7 @@ public class ReversiGUI extends JFrame {
     }
 
     //timer初始设置
-    private final int lastingTime = 10;
+    private final int lastingTime = 30;
     private int player1Time = lastingTime;
     private int player2Time = lastingTime;
 
