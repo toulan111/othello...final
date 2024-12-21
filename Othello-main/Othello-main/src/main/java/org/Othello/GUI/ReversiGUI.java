@@ -373,6 +373,8 @@ public class ReversiGUI extends JFrame {
                 }
 
                 writer.write(getDifficulty() + " "+ "0");
+                writer.newLine();
+                writer.write(alltime + " " + 0 + " " + 0);
 
                 restartTimer();
                 startPlayerTimer(board.getPlayerColor());
@@ -427,7 +429,9 @@ public class ReversiGUI extends JFrame {
                             boardHistoryColor.add(color);
                         } else if(elements.length == 2){
                             setDifficulty(Integer.parseInt(elements[0]));
-                        }else {
+                        }else if(elements.length == 3){
+                            alltime = Integer.parseInt(elements[0]);
+                        } else {
                             throw new IOException("文件格式错误：每行必须包含8个整数（棋盘状态）或1个整数（颜色历史）。");
                         }
                     }
